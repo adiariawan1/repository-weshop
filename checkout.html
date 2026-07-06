@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - We-Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen flex flex-col">
+
+<nav class="bg-green-700 text-white p-4">
+  <div class="max-w-2xl mx-auto">
+    <a href="cart.html" class="hover:underline">&larr; Kembali ke Keranjang</a>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-2xl mx-auto px-4 py-8 w-full">
+  <div class="bg-white p-8 rounded-2xl shadow-lg">
+    <h2 class="text-3xl font-bold text-green-800 mb-6">📦 Checkout</h2>
+    <div class="space-y-4">
+      <div>
+        <label class="block font-semibold text-gray-700">Alamat Pengiriman</label>
+        <textarea id="address" class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-green-500" rows="3" placeholder="Alamat lengkap..."></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-gray-700">Kurir</label>
+          <select id="courier" class="w-full border rounded-xl p-3">
+            <option>JNE Reguler</option>
+            <option>J&T Express</option>
+            <option>GoSend</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-gray-700">Pembayaran</label>
+          <select id="payment" class="w-full border rounded-xl p-3">
+            <option>Virtual Account</option>
+            <option>QRIS</option>
+          </select>
+        </div>
+      </div>
+      <div class="bg-green-50 p-4 rounded-xl mt-4">
+        <div class="flex justify-between"><span>Subtotal</span><span id="subtotal">0</span></div>
+        <div class="flex justify-between"><span>Ongkir</span><span>Rp 15.000</span></div>
+        <hr class="my-2">
+        <div class="flex justify-between font-bold text-xl"><span>Total</span><span id="final">0</span></div>
+      </div>
+      <button onclick="processCheckout()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 mt-4">Bayar Sekarang</button>
+    </div>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  const ONGKIR = 15000;
+
+  function loadCheckout() {
+    const cart = getCart();
+    if (cart.length === 0) {
+      alert('Keranjang kosong!');
+      window.location.href = 'index.html';
+      return;
+    }
+    const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+    document.getElementById('subtotal').innerText = 'Rp ' + subtotal.toLocaleString('id-ID');
+    document.getElementById('final').innerText = 'Rp ' + (subtotal + ONGKIR).toLocaleString('id-ID');
+  }
+
+  function processCheckout() {
+    const address = document.getElementById('address').value.trim();
+    if (!address) return alert('Alamat harus diisi');
+    const cart = getCart();
+    const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+    const total = subtotal + ONGKIR;
+    const order = {
+      order_id: 'ORD-' + Date.now(),
+      date: new Date().toISOString(),
+      items: [...cart],
+      address,
+      courier: document.getElementById('courier').value,
+      payment: document.getElementById('payment').value,
+      total,
+      status: 'paid'
+    };
+    saveOrder(order);
+    localStorage.removeItem('weshop_cart');
+    alert('Pesanan berhasil! (Simulasi)');
+    window.location.href = 'index.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCheckout);
+</script>
+</body>
+</html>

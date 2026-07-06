@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil - We-Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen flex flex-col">
+
+<nav class="bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <a href="index.html" class="text-2xl font-extrabold tracking-tight">WE-SHOP</a>
+    <div class="flex space-x-4 items-center">
+      <a href="index.html" class="hover:underline">Beranda</a>
+      <a href="cart.html" class="hover:underline">Keranjang (<span id="cart-count">0</span>)</a>
+      <div id="auth-menu"></div>
+    </div>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-xl mx-auto px-4 py-8 w-full">
+  <div class="bg-white p-8 rounded-2xl shadow-lg">
+    <h2 class="text-3xl font-bold text-green-800 mb-6">👤 Profil Saya</h2>
+    <div class="space-y-3 text-gray-700">
+      <p><span class="font-bold">Username:</span> <span id="prof-username">-</span></p>
+      <p><span class="font-bold">Email:</span> <span id="prof-email">-</span></p>
+      <p><span class="font-bold">Status Akun:</span> 
+        <span id="prof-role" class="px-2 py-1 rounded text-sm font-bold uppercase">-</span>
+      </p>
+    </div>
+    <p id="seller-link" class="mt-4 hidden">
+      <a href="dashboard-seller.html" class="text-green-600 hover:underline font-semibold">→ Buka Dashboard Penjual</a>
+    </p>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  function loadProfile() {
+    const user = getCurrentUser();
+    if (!user) {
+      alert('Silakan login dulu.');
+      window.location.href = 'login.html';
+      return;
+    }
+    document.getElementById('prof-username').innerText = user.username;
+    document.getElementById('prof-email').innerText = user.email || '-';
+    const roleEl = document.getElementById('prof-role');
+    roleEl.innerText = user.role;
+    if (user.role === 'seller') {
+      roleEl.className = 'bg-green-200 text-green-800 px-2 py-1 rounded text-sm font-bold uppercase';
+      document.getElementById('seller-link').classList.remove('hidden');
+    } else {
+      roleEl.className = 'bg-blue-200 text-blue-800 px-2 py-1 rounded text-sm font-bold uppercase';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+</body>
+</html>

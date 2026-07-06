@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Seller - We-Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<nav class="bg-green-900 text-white p-4">
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <a href="index.html" class="text-2xl font-extrabold">WE-SHOP Seller</a>
+    <div id="auth-menu"></div>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- Form Tambah Produk -->
+  <div class="bg-white p-6 rounded-2xl shadow">
+    <h3 class="font-bold text-lg mb-4">➕ Tambah Produk Baru</h3>
+    <input id="new-name" placeholder="Nama produk" class="w-full border rounded-xl p-2 mb-2">
+    <textarea id="new-desc" placeholder="Deskripsi" class="w-full border rounded-xl p-2 mb-2"></textarea>
+    <div class="flex gap-2 mb-2">
+      <input id="new-price" type="number" placeholder="Harga" class="w-1/2 border rounded-xl p-2">
+      <input id="new-stock" type="number" placeholder="Stok" class="w-1/2 border rounded-xl p-2">
+    </div>
+    <button onclick="addProduct()" class="w-full bg-green-600 text-white py-2 rounded-xl font-bold">Simpan</button>
+  </div>
+
+  <!-- Pesanan Masuk -->
+  <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow">
+    <h3 class="font-bold text-lg mb-4">📋 Pesanan Masuk</h3>
+    <div id="orders-list" class="space-y-3">
+      <p class="text-gray-500">Memuat pesanan...</p>
+    </div>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  function checkSellerAccess() {
+    const user = getCurrentUser();
+    if (!user || user.role !== 'seller') {
+      alert('Akses ditolak! Hanya penjual yang bisa mengakses halaman ini.');
+      window.location.href = 'profile.html';
+      return;
+    }
+    loadOrders();
+  }
+
+  function addProduct() {
+    const name = document.getElementById('new-name').value.trim();
+    const price = parseInt(document.getElementById('new-price').value);
+    const stock = parseInt(document.getElementById('new-stock').value);
+    const desc = document.getElementById('new-desc').value.trim();
+    if (!name || !price || !stock) return alert('Nama, harga, stok wajib diisi');
+    addCustomProduct({
+      name,
+      description: desc,
+      price,
+      stock,
+      seller_id: getCurrentUser().username
+    });
+    alert('Produk berhasil ditambahkan (tersimpan lokal)');
+    document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+  }
+
+  function loadOrders() {
+    const orders = getOrders();
+    const container = document.getElementById('orders-list');
+    if (orders.length === 0) {
+      container.innerHTML = '<p class="text-gray-500 text-center py-6">Belum ada pesanan.</p>';
+      return;
+    }
+    container.innerHTML = orders.map(o => `
+      <div class="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-xl">
+        <p class="text-xs text-gray-500">${o.order_id} - ${new Date(o.date).toLocaleString('id-ID')}</p>
+        <p class="font-bold">Total: Rp ${o.total.toLocaleString('id-ID')} (${o.status})</p>
+        <p class="text-sm text-gray-600">${o.items.map(i => i.name).join(', ')}</p>
+      </div>
+    `).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', checkSellerAccess);
+</script>
+</body>
+</html>

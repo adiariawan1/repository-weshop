@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keranjang - We-Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen flex flex-col">
+
+<nav class="bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <a href="index.html" class="text-2xl font-extrabold">WE-SHOP</a>
+    <div class="flex space-x-4">
+      <a href="index.html">Beranda</a>
+      <a href="cart.html" class="font-bold">Keranjang (<span id="cart-count">0</span>)</a>
+      <div id="auth-menu"></div>
+    </div>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-3xl mx-auto px-4 py-8 w-full">
+  <h2 class="text-3xl font-bold text-green-800 mb-6">🛒 Keranjang Belanja</h2>
+  <div id="cart-items" class="space-y-4"></div>
+  <div id="cart-summary" class="hidden mt-6 bg-white p-6 rounded-2xl shadow flex justify-between items-center">
+    <span class="text-xl font-bold">Total: Rp <span id="cart-total">0</span></span>
+    <div class="space-x-2">
+      <button onclick="clearCart()" class="bg-red-100 text-red-600 px-4 py-2 rounded-xl font-semibold">Kosongkan</button>
+      <a href="checkout.html" class="bg-green-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-green-700">Checkout →</a>
+    </div>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  function renderCartPage() {
+    const cart = getCart();
+    const container = document.getElementById('cart-items');
+    const summary = document.getElementById('cart-summary');
+    if (cart.length === 0) {
+      container.innerHTML = '<p class="text-gray-500 text-center py-10 bg-white rounded-2xl">Keranjang kosong.</p>';
+      summary.classList.add('hidden');
+      return;
+    }
+    let total = 0;
+    container.innerHTML = cart.map((item, idx) => {
+      const sub = item.price * item.qty;
+      total += sub;
+      return `
+        <div class="bg-white p-5 rounded-2xl shadow flex justify-between items-center">
+          <div>
+            <p class="font-bold text-lg">${item.name}</p>
+            <p class="text-sm text-gray-600">Rp ${item.price.toLocaleString()} x 
+              <input type="number" min="1" value="${item.qty}" onchange="updateQty(${idx}, this.value)" class="w-16 border rounded px-2 py-1 text-center">
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-green-700 text-lg">Rp ${sub.toLocaleString()}</p>
+            <button onclick="removeItem(${idx})" class="text-red-500 text-sm hover:underline mt-1">Hapus</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('cart-total').innerText = total.toLocaleString('id-ID');
+    summary.classList.remove('hidden');
+  }
+
+  function updateQty(index, newQty) {
+    let cart = getCart();
+    const qty = parseInt(newQty);
+    if (isNaN(qty) || qty < 1) return;
+    cart[index].qty = qty;
+    saveCart(cart);
+    renderCartPage();
+  }
+
+  function removeItem(index) {
+    let cart = getCart();
+    cart.splice(index, 1);
+    saveCart(cart);
+    renderCartPage();
+  }
+
+  function clearCart() {
+    localStorage.removeItem('weshop_cart');
+    renderCartPage();
+    updateCartCount();
+  }
+
+  document.addEventListener('DOMContentLoaded', renderCartPage);
+</script>
+</body>
+</html>
